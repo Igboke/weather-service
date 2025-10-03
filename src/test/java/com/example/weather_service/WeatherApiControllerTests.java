@@ -34,6 +34,11 @@ public class WeatherApiControllerTests {
 
     @Test
     void whenGetWeatherByCity_thenReturnsJsonResponse() throws Exception{
+
+        String city = "London";
+        CurrentWeatherResponse dummyResponse = new CurrentWeatherResponse(city, 10.0);
+        when(weatherService.getWeather(city)).thenReturn(dummyResponse);
+        
         mockMvc.perform(get("/api/weather/current?city=London"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
