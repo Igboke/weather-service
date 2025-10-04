@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +66,27 @@ public class WeatherServiceImplementationTest {
 
         assertThrows(CityNotFoundException.class, () -> {
         weatherService.getWeather(invalidCity);});
+    }
+
+    @Test
+    void whenGetWeatherIsCalledMultipleTimes_thenApiIsCalledOnlyOnce(){
+        String city = "Tokyo";
+        double temperature = 25.0;
+            
+        OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
+        fakeApiResponse.setCity(city);
+
+        OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
+        main.setTemperature(temperature);
+        fakeApiResponse.setMain(main);
+
+        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
+            .thenReturn(fakeApiResponse);
+
+        weatherService.getWeather(city);
+        weatherService.getWeather(city);
+
+        verify(restTemplate, times(1)).getForObject(anyString(), eq(OpenWeatherMapResponse.class));
     }
 
 }
