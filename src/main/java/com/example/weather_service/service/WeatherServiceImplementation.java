@@ -5,11 +5,13 @@ import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
+@Cacheable("weather")
 public class WeatherServiceImplementation implements WeatherService{
 
     private final RestTemplate restTemplate;
