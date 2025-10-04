@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.service.WeatherService;
+import com.example.weather_service.service.exception.CityNotFoundException;
 
 @WebMvcTest(WeatherApiController.class)
 public class WeatherApiControllerTests {
@@ -61,6 +62,15 @@ public class WeatherApiControllerTests {
             .andExpect(jsonPath("$.temperature").value(temperature));
 
 
+    }
+
+    @Test
+    void whenGetWeatherForInvalidCity_thenReturns404NotFound() throws Exception{
+        String invalidCity = "InvalidCity";
+        when(weatherService.getWeather(invalidCity))
+            .thenThrow(new CityNotFoundException("City not found: " + invalidCity));
+        mockMvc.perform(get("/api/weather/current?city=" + invalidCity))
+            .andExpect(status().isNotFound());
     }
     
 }

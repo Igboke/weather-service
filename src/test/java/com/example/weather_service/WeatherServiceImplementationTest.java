@@ -3,6 +3,7 @@ package com.example.weather_service;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.service.OpenWeatherMapResponse;
 import com.example.weather_service.service.WeatherServiceImplementation;
+import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,9 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -51,5 +55,15 @@ public class WeatherServiceImplementationTest {
         assertEquals(city, actualResponse.getCity());
         assertEquals(expectedTemp, actualResponse.getTemperature());
 }
+    @Test
+    void whenCityNotFoundOnApi_thenThrowsCityNotFoundException(){
+        String invalidCity = "InvalidCity";
+
+        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
+            .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        assertThrows(CityNotFoundException.class, () -> {
+        weatherService.getWeather(invalidCity);});
+    }
 
 }
