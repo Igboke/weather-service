@@ -1,6 +1,8 @@
 package com.example.weather_service;
 
 import com.example.weather_service.dto.CurrentWeatherResponse;
+import com.example.weather_service.model.City;
+import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.service.OpenWeatherMapResponse;
 import com.example.weather_service.service.WeatherServiceImplementation;
 import com.example.weather_service.service.exception.CityNotFoundException;
@@ -8,6 +10,7 @@ import com.example.weather_service.service.exception.CityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,13 +32,16 @@ public class WeatherServiceImplementationTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private CityRepository cityRepository;
+
     private WeatherServiceImplementation weatherService;
 
     @BeforeEach
     void setUp() {
         String fakeApiUrl = "https://fakeapi.com/weather";
         String fakeApiKey = "fakekey";
-        weatherService = new WeatherServiceImplementation(restTemplate, fakeApiUrl, fakeApiKey);
+        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository, fakeApiUrl, fakeApiKey);
     }
 
     @Test
@@ -87,6 +93,32 @@ public class WeatherServiceImplementationTest {
         weatherService.getWeather(city);
 
         verify(restTemplate, times(1)).getForObject(anyString(), eq(OpenWeatherMapResponse.class));
+    }
+
+        @Test
+    void whenGetWeatherSucceeds_thenCityIsSavedToDatabase() {
+
+        String cityName = "Paris";
+        OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
+        fakeApiResponse.setCity(cityName);
+ 
+        OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
+        main.setTemperature(22.0);
+        fakeApiResponse.setMain(main);
+
+        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
+                .thenReturn(fakeApiResponse);
+
+
+        weatherService.getWeather(cityName);
+
+        ArgumentCaptor<City> cityArgumentCaptor = ArgumentCaptor.forClass(City.class);
+        
+        verify(cityRepository, times(1)).save(cityArgumentCaptor.capture());
+        
+
+        City savedCity = cityArgumentCaptor.getValue();
+        assertEquals(cityName, savedCity.getCityName());
     }
 
 }
