@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.example.weather_service.dto.CurrentWeatherResponse;
+import com.example.weather_service.dto.ForecastResponse;
 
 @RestController
 public class WeatherApiController {
@@ -20,6 +21,11 @@ public class WeatherApiController {
     public CurrentWeatherResponse getWeatherByCity(@RequestParam("city")String city){
 
         return weatherService.getWeather(city);
+    }
+    
+    @GetMapping("/api/weather/forecast")
+    public ForecastResponse getForecastByCity(@RequestParam("city") String city) {
+        return weatherService.getForecast(city);
     }
 
     
