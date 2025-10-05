@@ -20,17 +20,24 @@ public class CityRepositoryTest {
     private CityRepository cityRepository;
 
     @Test
-    void whenFindByCityName_thenReturnCity() {
+    void whenFindByCityName_thenReturnCityWithAllProperties() {
         
-        City london = new City("London");
+        City london = new City();
+        london.setName("London");
+        london.setCountry("GB");
+        london.setLatitude(51.5074);
+        london.setLongitude(-0.1278);
         entityManager.persistAndFlush(london);
 
   
-        City found = cityRepository.findByCityName("London");
+        City found = cityRepository.findByName("London");
 
         
         assertThat(found).isNotNull();
-        assertThat(found.getCityName()).isEqualTo(london.getCityName());
+        assertThat(found.getName()).isEqualTo(london.getName());
+        assertThat(found.getCountry()).isEqualTo(london.getCountry());
+        assertThat(found.getLatitude()).isEqualTo(london.getLatitude()); 
+        assertThat(found.getLongitude()).isEqualTo(london.getLongitude()); 
     }
 
 }
