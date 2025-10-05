@@ -19,6 +19,10 @@ import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.service.WeatherService;
 import com.example.weather_service.service.exception.CityNotFoundException;
 
+import com.example.weather_service.dto.DailyForecast;
+import com.example.weather_service.dto.ForecastResponse;
+import java.util.List;
+
 @WebMvcTest(WeatherApiController.class)
 public class WeatherApiControllerTests {
 
@@ -83,6 +87,25 @@ public class WeatherApiControllerTests {
             .thenThrow(new CityNotFoundException("City not found: " + invalidCity));
         mockMvc.perform(get("/api/weather/current?city=" + invalidCity))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenGetForecastByCity_thenReturnsForecastList() throws Exception {
+  
+    DailyForecast day1 = new DailyForecast("2025-10-06", 15.0, 8.0, "Cloudy");
+    DailyForecast day2 = new DailyForecast("2025-10-07", 16.0, 9.0, "Sunny");
+    
+    ForecastResponse expectedResponse = new ForecastResponse(city, country, List.of(day1, day2));
+
+    when(weatherService.getForecast(city)).thenReturn(expectedResponse);
+
+    mockMvc.perform(get("/api/weather/forecast?city=" + city))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.city").value(city))
+            .andExpect(jsonPath("$.forecasts.length()").value(2)) // Check the list size
+            .andExpect(jsonPath("$.forecasts[0].date").value("2025-10-06"))
+            .andExpect(jsonPath("$.forecasts[0].maxTemperature").value(15.0));
     }
     
 }
