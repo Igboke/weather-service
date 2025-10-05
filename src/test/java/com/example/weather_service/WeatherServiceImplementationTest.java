@@ -122,7 +122,7 @@ public class WeatherServiceImplementationTest {
         
 
         City savedCity = cityArgumentCaptor.getValue();
-        assertEquals(cityName, savedCity.getCityName());
+        assertEquals(cityName, savedCity.getName());
     }
 
     @Test

@@ -21,8 +21,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.example.weather_service.dto.DailyForecast;
-import com.example.weather_service.dto.ForecastResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -74,11 +72,11 @@ public class WeatherServiceImplementation implements WeatherService{
                 formattedDateTimestamp = formatTimestamp(response,response.getDt());
                 sunrise = formatTimestamp(response, response.getSys().getSunrise());
                 sunset = formatTimestamp(response,response.getSys().getSunset());
-                try {
-                    cityRepository.save(new City(response.getCity()));
-                } catch (Exception e) {
-                    System.err.println("Could not save city: " + e.getMessage());
-                }
+                // try {
+                //     cityRepository.save(new City(response.getCity()));
+                // } catch (Exception e) {
+                //     System.err.println("Could not save city: " + e.getMessage());
+                // }
                 return new CurrentWeatherResponse(response.getCity(), response.getMain().getTemperature(),
                 response.getSys().getCountry(),formattedDateTimestamp,sunrise,sunset,response.getMain().getHumidity(),
                 response.getMain().getPressure(),response.getWind().getWindSpeed(),response.getWind().getWindDirection(),
