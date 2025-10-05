@@ -22,6 +22,19 @@ import com.example.weather_service.service.exception.CityNotFoundException;
 @WebMvcTest(WeatherApiController.class)
 public class WeatherApiControllerTests {
 
+    String city = "London";
+    double temperature = 12.0;
+    String country = "GB";
+    String timestamp="";
+    String sunrise="";
+    String sunset="";
+    int humidity=1;
+    int pressure=1;
+    float windSpeed=1.0f;
+    float windDirection=1.0f;
+    String conditions="";
+    String description="";
+
     @Autowired
     private MockMvc mockMvc;
     
@@ -36,8 +49,8 @@ public class WeatherApiControllerTests {
     @Test
     void whenGetWeatherByCity_thenReturnsJsonResponse() throws Exception{
 
-        String city = "London";
-        CurrentWeatherResponse dummyResponse = new CurrentWeatherResponse(city, 10.0);
+        CurrentWeatherResponse dummyResponse = new CurrentWeatherResponse(city, 10.0,country,timestamp,sunrise,sunset,humidity,pressure
+        ,windSpeed,windDirection,conditions,description);
         when(weatherService.getWeather(city)).thenReturn(dummyResponse);
         
         mockMvc.perform(get("/api/weather/current?city=London"))
@@ -47,10 +60,9 @@ public class WeatherApiControllerTests {
 
     @Test
     void whenGetWeatherByCity_thenReturnsDataFromService() throws Exception{
-        String city = "London";
-        double temperature = 12.0;
 
-        CurrentWeatherResponse expectedResponse = new CurrentWeatherResponse(city, temperature);
+        CurrentWeatherResponse expectedResponse = new CurrentWeatherResponse(city, temperature,country
+        ,timestamp,sunrise,sunset,humidity,pressure,windSpeed,windDirection,conditions,description);
 
         when(weatherService.getWeather(city)).thenReturn(expectedResponse);
 

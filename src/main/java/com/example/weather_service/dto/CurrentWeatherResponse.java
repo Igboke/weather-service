@@ -7,5 +7,14 @@ import lombok.Data;
 public class CurrentWeatherResponse {
     private final String city;
     private final double temperature;
-    
+    private final String country;
+    private final String timestamp;
+    private final String sunrise;
+    private final String sunset;
+    private final int humidity;
+    private final int pressure;
+    private final float windSpeed;
+    private final float windDirection;
+    private final String conditions;
+    private final String description;
 }
