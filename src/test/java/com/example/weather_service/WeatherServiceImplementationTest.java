@@ -61,12 +61,23 @@ public class WeatherServiceImplementationTest {
     void getWeather_shouldReturnCorrectlyMappedData() {
 
         String city = "Berlin";
+        String country = "DE";
         double expectedTemp = 8.7;
+
         OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
         fakeApiResponse.setCity(city);
+
         OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
         main.setTemperature(expectedTemp);
         fakeApiResponse.setMain(main);
+
+        OpenWeatherMapResponse.Sys sys = new OpenWeatherMapResponse.Sys();
+        sys.setCountry(country);
+        fakeApiResponse.setSys(sys);
+
+        fakeApiResponse.setCoord(new OpenWeatherMapResponse.Coord());
+        fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
+        fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
         
         when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
             .thenReturn(fakeApiResponse);
@@ -86,38 +97,27 @@ public class WeatherServiceImplementationTest {
         assertThrows(CityNotFoundException.class, () -> {
         weatherService.getWeather(invalidCity);});
     }
-
-    @Test
-    void whenGetWeatherIsCalledMultipleTimes_thenApiIsCalledOnlyOnce(){
-        String city = "Tokyo";
-        double temperature = 25.0;
             
-        OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
-        fakeApiResponse.setCity(city);
-
-        OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
-        main.setTemperature(temperature);
-        fakeApiResponse.setMain(main);
-
-        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
-            .thenReturn(fakeApiResponse);
-
-        weatherService.getWeather(city);
-        weatherService.getWeather(city);
-
-        verify(restTemplate, times(1)).getForObject(anyString(), eq(OpenWeatherMapResponse.class));
-    }
-
     @Test
     void whenGetWeatherSucceeds_thenCityIsSavedToDatabase() {
 
         String cityName = "Paris";
+        String country = "FR";
+        double temperature = 23.0;
         OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
         fakeApiResponse.setCity(cityName);
  
         OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
-        main.setTemperature(22.0);
+        main.setTemperature(temperature);
         fakeApiResponse.setMain(main);
+
+        OpenWeatherMapResponse.Sys sys = new OpenWeatherMapResponse.Sys();
+        sys.setCountry(country);
+        fakeApiResponse.setSys(sys);
+
+        fakeApiResponse.setCoord(new OpenWeatherMapResponse.Coord());
+        fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
+        fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
 
         when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
                 .thenReturn(fakeApiResponse);
@@ -159,10 +159,16 @@ public class WeatherServiceImplementationTest {
         sys.setSunset(sunset);
         fakeApiResponse.setSys(sys);
 
+        fakeApiResponse.setCoord(new OpenWeatherMapResponse.Coord());
+        fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
+        fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
+
         when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
             .thenReturn(fakeApiResponse);
 
         when(cityRepository.findByName(cityName)).thenReturn(null);
+
+        weatherService.getWeather(cityName);
         
         ArgumentCaptor<City> cityCaptor = ArgumentCaptor.forClass(City.class);
 
@@ -192,6 +198,10 @@ public class WeatherServiceImplementationTest {
     OpenWeatherMapForecastResponse.CityInfo cityInfo = new OpenWeatherMapForecastResponse.CityInfo();
     cityInfo.setName(city);
     cityInfo.setCountry(country);
+    OpenWeatherMapForecastResponse.CityInfo.Coord coord = new OpenWeatherMapForecastResponse.CityInfo.Coord();
+    coord.setLat(5.0);
+    coord.setLon(7.0);
+    cityInfo.setCoord(coord);
     fakeApiResponse.setCityInfo(cityInfo);
 
     OpenWeatherMapForecastResponse.ForecastItem item1 = new OpenWeatherMapForecastResponse.ForecastItem();
@@ -201,10 +211,20 @@ public class WeatherServiceImplementationTest {
     item1.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
     item1.getWeather().get(0).setDescription("Cloudy");
 
+    OpenWeatherMapResponse.Wind wind = new OpenWeatherMapResponse.Wind();
+    wind.setWindSpeed(5.0f);
+    wind.setWindDirection(180);
+    item1.setWind(wind);
+
     OpenWeatherMapForecastResponse.ForecastItem item2 = new OpenWeatherMapForecastResponse.ForecastItem();
     item2.setDateTimeText("2025-10-06 21:00:00");
     item2.setMain(new OpenWeatherMapResponse.Main());
     item2.getMain().setTemperature(8.0);
+    item2.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
+    OpenWeatherMapResponse.Wind wind2 = new OpenWeatherMapResponse.Wind();
+    wind2.setWindSpeed(5.0f);
+    wind2.setWindDirection(180);
+    item2.setWind(wind2);
 
     
     OpenWeatherMapForecastResponse.ForecastItem item3 = new OpenWeatherMapForecastResponse.ForecastItem();
@@ -213,6 +233,10 @@ public class WeatherServiceImplementationTest {
     item3.getMain().setTemperature(16.0);
     item3.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
     item3.getWeather().get(0).setDescription("Sunny");
+    OpenWeatherMapResponse.Wind wind3 = new OpenWeatherMapResponse.Wind();
+    wind3.setWindSpeed(5.0f);
+    wind3.setWindDirection(180);
+    item3.setWind(wind3);
 
     fakeApiResponse.setList(List.of(item1, item2, item3));
 

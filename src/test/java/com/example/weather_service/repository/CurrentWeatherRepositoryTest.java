@@ -23,7 +23,7 @@ public class CurrentWeatherRepositoryTest {
     void whenFindByCity_thenReturnCurrentWeather() {
 
         City london = new City();
-        london.setName("Lodon");
+        london.setName("London");
         london.setCountry("GB");
         london.setLatitude(51.5);
         london.setLongitude(-0.12);
@@ -47,7 +47,7 @@ public class CurrentWeatherRepositoryTest {
 
         assertThat(found).isNotNull();
         assertThat(found.getTemperature()).isEqualTo(15.5);
-        assertThat(found.getCity().getName()).isEqualTo("Lodon");
+        assertThat(found.getCity().getName()).isEqualTo("London");
     }
     
 }
