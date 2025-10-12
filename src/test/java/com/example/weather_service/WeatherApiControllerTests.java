@@ -116,7 +116,7 @@ public class WeatherApiControllerTests {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.city").value(city))
-            .andExpect(jsonPath("$.forecasts.length()").value(2)) // Check the list size
+            .andExpect(jsonPath("$.forecasts.length()").value(2))
             .andExpect(jsonPath("$.forecasts[0].date").value(date))
             .andExpect(jsonPath("$.forecasts[0].maxTemperature").value(15.0));
     }

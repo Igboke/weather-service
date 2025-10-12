@@ -24,7 +24,7 @@ public class ForecastRepositoryTest {
     @Test
     void whenFindByCity_thenReturnListOfForecasts() {
         City berlin = new City();
-        berlin.setName("Brlois");
+        berlin.setName("Berlin");
         berlin.setCountry("DE");
         berlin.setLatitude(52.5);
         berlin.setLongitude(13.4);

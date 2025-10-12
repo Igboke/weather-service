@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.DailyForecast;
 import com.example.weather_service.dto.ForecastResponse;
+import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +25,9 @@ public class WeatherWebControllerTest {
 
     @MockBean
     private WeatherService weatherService;
+
+    @MockBean
+    private CityRepository cityRepository;
 
     @Test
     void whenGetWeatherPageWithCity_thenReturnsViewWithData() throws Exception {
