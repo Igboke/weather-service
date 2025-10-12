@@ -78,4 +78,18 @@ public class OpenWeatherMapResponse {
         private String description;
     }
 
+    @JsonProperty("coord")
+    private Coord coord;
+    
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Coord{
+
+        @JsonProperty("lon")
+        private double lon;
+
+        @JsonProperty("lat")
+        private double lat;
+    }
+
 }
