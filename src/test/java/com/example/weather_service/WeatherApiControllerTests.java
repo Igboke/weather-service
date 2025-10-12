@@ -92,8 +92,21 @@ public class WeatherApiControllerTests {
     @Test
     void whenGetForecastByCity_thenReturnsForecastList() throws Exception {
   
-    DailyForecast day1 = new DailyForecast("2025-10-06", 15.0, 8.0, "Cloudy");
-    DailyForecast day2 = new DailyForecast("2025-10-07", 16.0, 9.0, "Sunny");
+    String date = "2025-10-06";
+    double maxTemperature = 15.0;
+    double minTemperature=15.0;
+    String description = "Cloudy";
+    String conditions="Cloudy";
+    double humidity=10.0;
+    int pressure=2000;
+    double windSpeed=10.0;
+    float windDirection=10.0f;
+    float rainProbability=15.0f;
+    double rainMillimeter=20.0;
+    
+    DailyForecast day1 = new DailyForecast(date, maxTemperature, minTemperature, description,conditions,humidity,pressure
+    ,windSpeed,windDirection,rainProbability,rainMillimeter);
+    DailyForecast day2 = new DailyForecast(date,maxTemperature,minTemperature,description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter);
     
     ForecastResponse expectedResponse = new ForecastResponse(city, country, List.of(day1, day2));
 
@@ -104,7 +117,7 @@ public class WeatherApiControllerTests {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.city").value(city))
             .andExpect(jsonPath("$.forecasts.length()").value(2)) // Check the list size
-            .andExpect(jsonPath("$.forecasts[0].date").value("2025-10-06"))
+            .andExpect(jsonPath("$.forecasts[0].date").value(date))
             .andExpect(jsonPath("$.forecasts[0].maxTemperature").value(15.0));
     }
     
