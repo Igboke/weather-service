@@ -18,9 +18,9 @@ public class Forecast {
     private LocalDate forecastDate;
     private double temperature;
     private double windSpeed;
-    private int windDirection;
+    private float windDirection;
     private int pressure;
-    private int humidity;
+    private double humidity;
     private String weatherMain;
     private String weatherDesc;
     private double rainVolume;

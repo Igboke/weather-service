@@ -5,8 +5,10 @@ import com.example.weather_service.dto.DailyForecast;
 import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
 import com.example.weather_service.model.CurrentWeather;
+import com.example.weather_service.model.Forecast;
 import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.repository.CurrentWeatherRepository;
+import com.example.weather_service.repository.ForecastRepository;
 import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.springframework.stereotype.Service;
@@ -37,15 +39,18 @@ public class WeatherServiceImplementation implements WeatherService{
     private final String apiKey;
     private final CityRepository cityRepository;
     private final CurrentWeatherRepository currentWeatherRepository;
+    private final ForecastRepository forecastRepository;
 
     public WeatherServiceImplementation (RestTemplate restTemplate,
                                         CityRepository cityRepository,
                                         CurrentWeatherRepository currentWeatherRepository,
+                                        ForecastRepository forecastRepository,
                                         @Value("${openweathermap.api.base-url}") String apiUrl,
                                         @Value("${openweathermap.api.key}") String apiKey) {
         this.restTemplate = restTemplate;
         this.cityRepository = cityRepository;
         this.currentWeatherRepository = currentWeatherRepository;
+        this.forecastRepository = forecastRepository;
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
     }
@@ -99,6 +104,8 @@ public class WeatherServiceImplementation implements WeatherService{
             }
 
             List<DailyForecast> dailyForecasts = aggregateForecastData(response.getList());
+
+            persistForecastData(response, dailyForecasts);
 
             return mapToForecastResponse(response.getCityInfo(), dailyForecasts);
 
@@ -195,6 +202,8 @@ public class WeatherServiceImplementation implements WeatherService{
             LocalDate date = entry.getKey();
             List<OpenWeatherMapForecastResponse.ForecastItem> itemsForDay = entry.getValue();
 
+            double rainMillimeter = 0;
+
             double minTemp = itemsForDay.stream()
                     .mapToDouble(item -> item.getMain().getTemperature())
                     .min().orElse(0.0);
@@ -205,7 +214,25 @@ public class WeatherServiceImplementation implements WeatherService{
 
             String description = itemsForDay.get(0).getWeather().get(0).getDescription();
 
-            dailyForecasts.add(new DailyForecast(date.toString(), maxTemp, minTemp, description));
+            String conditions = itemsForDay.get(0).getWeather().get(0).getConditions();
+
+            double humidity = itemsForDay.get(0).getMain().getHumidity();
+
+            double windSpeed = itemsForDay.get(0).getWind().getWindSpeed();
+
+            int pressure = itemsForDay.get(0).getMain().getPressure();
+
+            float windDirection = itemsForDay.get(0).getWind().getWindDirection();
+
+            float rainProbability = itemsForDay.get(0).getPop();
+
+            if (itemsForDay.get(0).getRain() != null && itemsForDay.get(0).getRain().getRainMm() != null){
+                rainMillimeter = itemsForDay.get(0).getRain().getRainMm();
+            }
+
+            
+
+            dailyForecasts.add(new DailyForecast(date.toString(), maxTemp, minTemp, description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter));
         }
         return dailyForecasts;
     }
@@ -215,6 +242,45 @@ public class WeatherServiceImplementation implements WeatherService{
                 cityInfo.getCountry(),
                 dailyForecasts
         );
+    }
+
+    private void persistForecastData(OpenWeatherMapForecastResponse apiResponse, List<DailyForecast> dailyForecasts) {
+
+        City cityEntity = cityRepository.findByName(apiResponse.getCityInfo().getName());
+        if (cityEntity == null) {
+            cityEntity = new City();
+            cityEntity.setName(apiResponse.getCityInfo().getName());
+            cityEntity.setCountry(apiResponse.getCityInfo().getCountry());
+            cityEntity.setLatitude(apiResponse.getCityInfo().getCoord().getLat());
+            cityEntity.setLongitude(apiResponse.getCityInfo().getCoord().getLon());
+        }
+
+        final City finalCityEntity = cityEntity;
+
+        for (DailyForecast dailyDto : dailyForecasts) {
+            LocalDate forecastDate = LocalDate.parse(dailyDto.getDate());
+
+            Forecast forecastEntity = cityEntity.findForecastForDate(forecastDate)
+                .orElseGet(() -> {
+                    Forecast newForecast = new Forecast();
+                    newForecast.setCity(finalCityEntity);
+                    finalCityEntity.getForecasts().add(newForecast);
+                    return newForecast;
+                });
+
+            forecastEntity.setForecastDate(forecastDate);
+            forecastEntity.setTemperature(dailyDto.getMaxTemperature());
+            forecastEntity.setWeatherDesc(dailyDto.getDescription());
+            forecastEntity.setWeatherMain(dailyDto.getConditions());
+            forecastEntity.setWindSpeed(dailyDto.getWindSpeed());
+            forecastEntity.setWindDirection(dailyDto.getWindDirection());
+            forecastEntity.setHumidity(dailyDto.getHumidity());
+            forecastEntity.setPressure(dailyDto.getPressure());
+            forecastEntity.setProbability(dailyDto.getRainProbability());
+            forecastEntity.setRainVolume(dailyDto.getRainMillimeter());    
+    }
+
+        cityRepository.save(cityEntity);
     }
     
 }

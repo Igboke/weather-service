@@ -6,6 +6,7 @@ import com.example.weather_service.model.City;
 import com.example.weather_service.model.CurrentWeather;
 import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.repository.CurrentWeatherRepository;
+import com.example.weather_service.repository.ForecastRepository;
 import com.example.weather_service.service.OpenWeatherMapForecastResponse;
 import com.example.weather_service.service.OpenWeatherMapResponse;
 import com.example.weather_service.service.WeatherServiceImplementation;
@@ -44,13 +45,16 @@ public class WeatherServiceImplementationTest {
     @Mock
     private CurrentWeatherRepository currentWeatherRepository;
 
+    @Mock
+    private ForecastRepository forecastRepository;
+
     private WeatherServiceImplementation weatherService;
 
     @BeforeEach
     void setUp() {
         String fakeApiUrl = "https://fakeapi.com/weather";
         String fakeApiKey = "fakekey";
-        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository,currentWeatherRepository, fakeApiUrl, fakeApiKey);
+        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository,currentWeatherRepository,forecastRepository,fakeApiUrl, fakeApiKey);
     }
 
     @Test
@@ -229,6 +233,16 @@ public class WeatherServiceImplementationTest {
     assertThat(actualResponse.getForecasts().get(0).getDescription()).isEqualTo("Cloudy");
     assertThat(actualResponse.getForecasts().get(1).getDate()).isEqualTo("2025-10-07");
     assertThat(actualResponse.getForecasts().get(1).getMaxTemperature()).isEqualTo(16.0);
+    assertThat(actualResponse.getForecasts()).hasSize(2);
+
+    ArgumentCaptor<City> cityCaptor = ArgumentCaptor.forClass(City.class);
+
+    verify(cityRepository, times(1)).save(cityCaptor.capture());
+
+    City savedCity = cityCaptor.getValue();
+    assertThat(savedCity.getForecasts()).isNotNull();
+    assertThat(savedCity.getForecasts()).hasSize(2);
+    assertThat(savedCity.getForecasts().get(0).getTemperature()).isEqualTo(15.0);
 }
 
 }

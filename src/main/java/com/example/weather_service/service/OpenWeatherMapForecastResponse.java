@@ -26,6 +26,23 @@ public class OpenWeatherMapForecastResponse {
 
         @JsonProperty("weather")
         private List<OpenWeatherMapResponse.Weather> weather;
+
+        @JsonProperty("wind")
+        private OpenWeatherMapResponse.Wind wind;
+
+        @JsonProperty("pop")
+        private float pop;
+    
+        @JsonProperty("rain")
+        private Rain rain;
+
+        @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class  Rain {
+            @JsonProperty("3h")
+            private Double rainMm;
+            
+        }
     }
 
     @Data
@@ -36,6 +53,21 @@ public class OpenWeatherMapForecastResponse {
 
         @JsonProperty("country")
         private String country;
+
+        @JsonProperty("coord")
+        private Coord coord;
+
+        @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class Coord{
+
+            @JsonProperty("lon")
+            private double lon;
+
+            @JsonProperty("lat")
+            private double lat;
+
+        }
     }
-    
+
 }
