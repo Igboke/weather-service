@@ -15,4 +15,5 @@ public class DailyForecast {
     private final float windDirection;
     private final float rainProbability;
     private final double rainMillimeter;
+    private final String iconClass;
 }

@@ -31,6 +31,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class WeatherServiceImplementation implements WeatherService{
 
@@ -40,6 +43,7 @@ public class WeatherServiceImplementation implements WeatherService{
     private final CityRepository cityRepository;
     private final CurrentWeatherRepository currentWeatherRepository;
     private final ForecastRepository forecastRepository;
+    private static final Logger log = LoggerFactory.getLogger(WeatherServiceImplementation.class);
 
     public WeatherServiceImplementation (RestTemplate restTemplate,
                                         CityRepository cityRepository,
@@ -79,8 +83,10 @@ public class WeatherServiceImplementation implements WeatherService{
             }
         }catch (HttpClientErrorException e){
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-            throw new CityNotFoundException("City not found: " + city);
+                log.error("error at current-weather on city: {}",city, e);
+                throw new CityNotFoundException("City not found: " + city);
         }
+        log.error("API Client Error for forecast on city: {}. Status: {}", city, e.getStatusCode(), e);
         throw new RuntimeException("API Client Error: " + e.getStatusCode());
     }   
         
@@ -100,8 +106,10 @@ public class WeatherServiceImplementation implements WeatherService{
             OpenWeatherMapForecastResponse response = restTemplate.getForObject(url, OpenWeatherMapForecastResponse.class);
 
             if (response == null || response.getList() == null || response.getList().isEmpty()) {
+                log.warn("Forecast data not available or empty for city: {}", city);
                 throw new CityNotFoundException("Forecast data not available for city: " + city);
             }
+            log.debug("Received {} 3-hourly forecast items from API for city: {}", response.getList().size(), city);
 
             List<DailyForecast> dailyForecasts = aggregateForecastData(response.getList());
 
@@ -111,6 +119,7 @@ public class WeatherServiceImplementation implements WeatherService{
 
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.error("API Client Error for forecast on city: {}. Status: {}", city, e.getStatusCode(), e);
                 throw new CityNotFoundException("City not found for forecast: " + city);
             }
             throw new RuntimeException("API Client Error for forecast: " + e.getStatusCode());
@@ -181,11 +190,12 @@ public class WeatherServiceImplementation implements WeatherService{
             description = response.getWeather().get(0).getDescription();
             conditions = response.getWeather().get(0).getConditions();
         }
+        String weatherIcon = mapWeatherConditionToIconClass(conditions);
         
         return new CurrentWeatherResponse(response.getCity(), response.getMain().getTemperature(),
                 response.getSys().getCountry(),formattedDateTimestamp,sunrise,sunset,response.getMain().getHumidity(),
                 response.getMain().getPressure(),response.getWind().getWindSpeed(),response.getWind().getWindDirection(),
-                conditions,description);
+                conditions,description,weatherIcon);
     }
 
     private List<DailyForecast> aggregateForecastData(List<OpenWeatherMapForecastResponse.ForecastItem> forecastItems) {
@@ -196,6 +206,8 @@ public class WeatherServiceImplementation implements WeatherService{
                         LinkedHashMap::new,
                         Collectors.toList()
                 ));
+        
+        log.debug("Grouped forecast items into {} days.", itemsByDay.size());
 
         List<DailyForecast> dailyForecasts = new ArrayList<>();
         for (Map.Entry<LocalDate, List<OpenWeatherMapForecastResponse.ForecastItem>> entry : itemsByDay.entrySet()) {
@@ -226,14 +238,17 @@ public class WeatherServiceImplementation implements WeatherService{
 
             float rainProbability = itemsForDay.get(0).getPop();
 
+            String weatherIcon = mapWeatherConditionToIconClass(conditions);
+
             if (itemsForDay.get(0).getRain() != null && itemsForDay.get(0).getRain().getRainMm() != null){
                 rainMillimeter = itemsForDay.get(0).getRain().getRainMm();
             }
 
             
 
-            dailyForecasts.add(new DailyForecast(date.toString(), maxTemp, minTemp, description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter));
+            dailyForecasts.add(new DailyForecast(date.toString(), maxTemp, minTemp, description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter,weatherIcon));
         }
+        log.info("Successfully aggregated into {} daily forecasts.", dailyForecasts.size());
         return dailyForecasts;
     }
     private ForecastResponse mapToForecastResponse(OpenWeatherMapForecastResponse.CityInfo cityInfo, List<DailyForecast> dailyForecasts) {
@@ -282,5 +297,21 @@ public class WeatherServiceImplementation implements WeatherService{
 
         cityRepository.save(cityEntity);
     }
-    
+
+    private String mapWeatherConditionToIconClass(String condition) {
+        if (condition == null) {
+            return "bi-sun-fill";
+        }
+
+        return switch (condition.toLowerCase()) {
+            case "clear" -> "bi-sun-fill";
+            case "clouds" -> "bi-cloud-fill";
+            case "rain", "drizzle" -> "bi-cloud-rain-fill";
+            case "thunderstorm" -> "bi-cloud-lightning-rain-fill";
+            case "snow" -> "bi-cloud-snow-fill";
+            case "mist", "smoke", "haze", "dust", "fog", "sand", "ash", "squall", "tornado" -> "bi-wind";
+            default -> "bi-sun-fill";
+        };
+    }
+        
 }

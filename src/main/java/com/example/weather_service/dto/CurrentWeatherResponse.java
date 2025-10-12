@@ -17,4 +17,5 @@ public class CurrentWeatherResponse {
     private final float windDirection;
     private final String conditions;
     private final String description;
+    private final String iconClass;
 }
