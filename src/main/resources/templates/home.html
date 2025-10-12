@@ -31,6 +31,16 @@
         </div>
     </form>
 
+    <div th:if="${topCities != null and not #lists.isEmpty(topCities)}" class="mt-5 w-50">
+    <h5 class="text-muted mb-3">Popular Searches</h5>
+    <div class="d-flex flex-wrap justify-content-center">
+        <a th:each="city : ${topCities}" th:href="@{/weather(city=${city.name})}" class="btn btn-outline-secondary m-1">
+            <span th:text="${city.name}">London</span>
+        </a>
+    </div>
+
+</div>
+
 </div>
 
 </body>
