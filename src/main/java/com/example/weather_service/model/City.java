@@ -1,6 +1,8 @@
 package com.example.weather_service.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -32,5 +34,8 @@ public class City {
 
     @OneToOne(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private CurrentWeather currentWeather;
+
+    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Forecast> forecasts = new ArrayList<>();
     
 }

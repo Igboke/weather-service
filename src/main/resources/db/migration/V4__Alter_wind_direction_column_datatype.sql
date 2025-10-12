@@ -1,0 +1,2 @@
+ALTER TABLE current_weather
+ALTER COLUMN wind_direction TYPE DOUBLE PRECISION;

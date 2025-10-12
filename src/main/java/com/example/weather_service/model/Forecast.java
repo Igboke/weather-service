@@ -1,33 +1,33 @@
 package com.example.weather_service.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "current_weather")
+@Table(name = "forecasts")
 @Data
 @NoArgsConstructor
-public class CurrentWeather {
+public class Forecast {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalDate forecastDate;
     private double temperature;
-    private int humidity;
     private double windSpeed;
-    private float windDirection;
+    private int windDirection;
     private int pressure;
+    private int humidity;
     private String weatherMain;
     private String weatherDesc;
-    private String sunrise;
-    private String sunset;
-    private LocalDateTime lastUpdated;
+    private double rainVolume;
+    private float probability;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
+    
 }

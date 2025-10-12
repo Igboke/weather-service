@@ -3,7 +3,9 @@ package com.example.weather_service;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
+import com.example.weather_service.model.CurrentWeather;
 import com.example.weather_service.repository.CityRepository;
+import com.example.weather_service.repository.CurrentWeatherRepository;
 import com.example.weather_service.service.OpenWeatherMapForecastResponse;
 import com.example.weather_service.service.OpenWeatherMapResponse;
 import com.example.weather_service.service.WeatherServiceImplementation;
@@ -39,13 +41,16 @@ public class WeatherServiceImplementationTest {
     @Mock
     private CityRepository cityRepository;
 
+    @Mock
+    private CurrentWeatherRepository currentWeatherRepository;
+
     private WeatherServiceImplementation weatherService;
 
     @BeforeEach
     void setUp() {
         String fakeApiUrl = "https://fakeapi.com/weather";
         String fakeApiKey = "fakekey";
-        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository, fakeApiUrl, fakeApiKey);
+        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository,currentWeatherRepository, fakeApiUrl, fakeApiKey);
     }
 
     @Test
@@ -123,6 +128,53 @@ public class WeatherServiceImplementationTest {
 
         City savedCity = cityArgumentCaptor.getValue();
         assertEquals(cityName, savedCity.getName());
+    }
+
+    @Test
+    void whenGetWeather_thenSavesCityAndCurrentWeather(){
+        String cityName = "Paris";
+        String country = "FR";
+        double temp = 27.0;
+        int humidity = 15;
+        int pressure =10;
+        long sunrise = 393847474;
+        long sunset = 484439383;
+        
+        OpenWeatherMapResponse fakeApiResponse = new OpenWeatherMapResponse();
+        fakeApiResponse.setCity(cityName);
+        
+        OpenWeatherMapResponse.Main main = new OpenWeatherMapResponse.Main();
+        main.setTemperature(temp);
+        main.setHumidity(humidity);
+        main.setPressure(pressure);
+        fakeApiResponse.setMain(main);
+
+        OpenWeatherMapResponse.Sys sys = new OpenWeatherMapResponse.Sys();
+        sys.setCountry(country);
+        sys.setSunrise(sunrise);
+        sys.setSunset(sunset);
+        fakeApiResponse.setSys(sys);
+
+        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
+            .thenReturn(fakeApiResponse);
+
+        when(cityRepository.findByName(cityName)).thenReturn(null);
+        
+        ArgumentCaptor<City> cityCaptor = ArgumentCaptor.forClass(City.class);
+
+        verify(cityRepository, times(1)).save(cityCaptor.capture());
+
+        City savedCity = cityCaptor.getValue();
+        assertThat(savedCity.getName()).isEqualTo(cityName);
+        assertThat(savedCity.getCountry()).isEqualTo(country);
+        assertThat(savedCity.getSearchCount()).isEqualTo(1);
+        assertThat(savedCity.getLastSearched()).isNotNull();
+
+        
+        CurrentWeather savedWeather = savedCity.getCurrentWeather();
+        assertThat(savedWeather).isNotNull();
+        assertThat(savedWeather.getTemperature()).isEqualTo(temp);
+        assertThat(savedWeather.getCity()).isEqualTo(savedCity);
     }
 
     @Test
