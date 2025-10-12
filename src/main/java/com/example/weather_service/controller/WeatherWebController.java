@@ -2,30 +2,41 @@ package com.example.weather_service.controller;
 
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.ForecastResponse;
+import com.example.weather_service.model.City;
+import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.service.WeatherService;
 
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class WeatherWebController implements ErrorController {
 
     private final WeatherService weatherService;
+    private final CityRepository cityRepository;
+
     private static final Logger log = LoggerFactory.getLogger(WeatherWebController.class);
 
-    public WeatherWebController(WeatherService weatherService) {
+    public WeatherWebController(WeatherService weatherService, CityRepository cityRepository) {
         this.weatherService = weatherService;
+        this.cityRepository = cityRepository;
     }
 
     @GetMapping("/")
-    public String getHomePage() {
+    public String getHomePage(Model model) {
+
+        List<City> topCities = cityRepository.findTop10ByOrderBySearchCountDesc();
+    
+        model.addAttribute("topCities", topCities);
         return "home";
     }
 
@@ -51,7 +62,6 @@ public class WeatherWebController implements ErrorController {
     
     @RequestMapping("/error")
     public String handleError() {
-        // This method simply returns the name of our custom error view.
         return "error";
     }
 }   

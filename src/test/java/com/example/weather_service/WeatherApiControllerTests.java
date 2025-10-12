@@ -54,7 +54,7 @@ public class WeatherApiControllerTests {
     void whenGetWeatherByCity_thenReturnsJsonResponse() throws Exception{
 
         CurrentWeatherResponse dummyResponse = new CurrentWeatherResponse(city, 10.0,country,timestamp,sunrise,sunset,humidity,pressure
-        ,windSpeed,windDirection,conditions,description);
+        ,windSpeed,windDirection,conditions,description,"icon");
         when(weatherService.getWeather(city)).thenReturn(dummyResponse);
         
         mockMvc.perform(get("/api/weather/current?city=London"))
@@ -66,7 +66,7 @@ public class WeatherApiControllerTests {
     void whenGetWeatherByCity_thenReturnsDataFromService() throws Exception{
 
         CurrentWeatherResponse expectedResponse = new CurrentWeatherResponse(city, temperature,country
-        ,timestamp,sunrise,sunset,humidity,pressure,windSpeed,windDirection,conditions,description);
+        ,timestamp,sunrise,sunset,humidity,pressure,windSpeed,windDirection,conditions,description,"icon");
 
         when(weatherService.getWeather(city)).thenReturn(expectedResponse);
 
@@ -105,8 +105,8 @@ public class WeatherApiControllerTests {
     double rainMillimeter=20.0;
     
     DailyForecast day1 = new DailyForecast(date, maxTemperature, minTemperature, description,conditions,humidity,pressure
-    ,windSpeed,windDirection,rainProbability,rainMillimeter);
-    DailyForecast day2 = new DailyForecast(date,maxTemperature,minTemperature,description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter);
+    ,windSpeed,windDirection,rainProbability,rainMillimeter,"Icon");
+    DailyForecast day2 = new DailyForecast(date,maxTemperature,minTemperature,description,conditions,humidity,pressure,windSpeed,windDirection,rainProbability,rainMillimeter,"icon");
     
     ForecastResponse expectedResponse = new ForecastResponse(city, country, List.of(day1, day2));
 
