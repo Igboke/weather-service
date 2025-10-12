@@ -28,7 +28,6 @@ public class WeatherServiceIntegrationTest {
 
     @Test
     void whenGetWeatherIsCalledMultipleTimes_thenApiIsCalledOnlyOnce(){
-        // belongs to integration test
         String city = "Tokyo";
         String country = "JP";
         double temperature = 25.0;
