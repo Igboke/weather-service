@@ -8,4 +8,11 @@ public class DailyForecast {
     private final double maxTemperature;
     private final double minTemperature;
     private final String description;
+    private final String conditions;
+    private final double humidity;
+    private final int pressure;
+    private final double windSpeed;
+    private final float windDirection;
+    private final float rainProbability;
+    private final double rainMillimeter;
 }
