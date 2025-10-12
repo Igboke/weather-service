@@ -23,7 +23,7 @@ public class WeatherDataScheduler {
 
     
     //(fixedRate = 60000)
-    @Scheduled(cron = "0 0 * * * *") 
+    @Scheduled(cron = "0 */45 * * * *") 
     public void refreshWeatherData() {
         log.info("Starting scheduled weather data refresh...");
 
@@ -40,6 +40,7 @@ public class WeatherDataScheduler {
             try {
                 log.debug("Refreshing data for {}", city.getName());
                 weatherService.getWeather(city.getName());
+                weatherService.getForecast(city.getName());
             } catch (Exception e) {
                 log.error("Failed to refresh weather data for city: {}", city.getName(), e);
             }
