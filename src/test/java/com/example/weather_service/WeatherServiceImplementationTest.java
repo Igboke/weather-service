@@ -4,6 +4,7 @@ import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
 import com.example.weather_service.model.CurrentWeather;
+import com.example.weather_service.provider.WeatherProvider;
 import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.repository.CurrentWeatherRepository;
 import com.example.weather_service.repository.ForecastRepository;
@@ -20,12 +21,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WeatherServiceImplementationTest {
 
     @Mock
-    private RestTemplate restTemplate;
+    private WeatherProvider weatherProvider;
 
     @Mock
     private CityRepository cityRepository;
@@ -52,9 +50,7 @@ public class WeatherServiceImplementationTest {
 
     @BeforeEach
     void setUp() {
-        String fakeApiUrl = "https://fakeapi.com/weather";
-        String fakeApiKey = "fakekey";
-        weatherService = new WeatherServiceImplementation(restTemplate, cityRepository,currentWeatherRepository,forecastRepository,fakeApiUrl, fakeApiKey);
+    weatherService = new WeatherServiceImplementation(weatherProvider, cityRepository, currentWeatherRepository, forecastRepository);
     }
 
     @Test
@@ -79,8 +75,7 @@ public class WeatherServiceImplementationTest {
         fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
         fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
         
-        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
-            .thenReturn(fakeApiResponse);
+        when(weatherProvider.fetchCurrentWeather(city)).thenReturn(fakeApiResponse);
         
         CurrentWeatherResponse actualResponse = weatherService.getWeather(city);
         
@@ -91,7 +86,7 @@ public class WeatherServiceImplementationTest {
     void whenCityNotFoundOnApi_thenThrowsCityNotFoundException(){
         String invalidCity = "InvalidCity";
 
-        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
+        when(weatherProvider.fetchCurrentWeather(invalidCity))
             .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         assertThrows(CityNotFoundException.class, () -> {
@@ -119,8 +114,7 @@ public class WeatherServiceImplementationTest {
         fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
         fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
 
-        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
-                .thenReturn(fakeApiResponse);
+        when(weatherProvider.fetchCurrentWeather(cityName)).thenReturn(fakeApiResponse);
 
 
         weatherService.getWeather(cityName);
@@ -163,8 +157,7 @@ public class WeatherServiceImplementationTest {
         fakeApiResponse.setWind(new OpenWeatherMapResponse.Wind());
         fakeApiResponse.setWeather(List.of(new OpenWeatherMapResponse.Weather()));
 
-        when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapResponse.class)))
-            .thenReturn(fakeApiResponse);
+        when(weatherProvider.fetchCurrentWeather(cityName)).thenReturn(fakeApiResponse);
 
         when(cityRepository.findByName(cityName)).thenReturn(null);
 
@@ -241,8 +234,7 @@ public class WeatherServiceImplementationTest {
     fakeApiResponse.setList(List.of(item1, item2, item3));
 
     
-    when(restTemplate.getForObject(anyString(), eq(OpenWeatherMapForecastResponse.class)))
-            .thenReturn(fakeApiResponse);
+    when(weatherProvider.fetchForecast(city)).thenReturn(fakeApiResponse);
 
     
     ForecastResponse actualResponse = weatherService.getForecast(city);

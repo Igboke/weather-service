@@ -6,6 +6,7 @@ import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
 import com.example.weather_service.model.CurrentWeather;
 import com.example.weather_service.model.Forecast;
+import com.example.weather_service.provider.WeatherProvider;
 import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.repository.CurrentWeatherRepository;
 import com.example.weather_service.repository.ForecastRepository;
@@ -36,42 +37,28 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class WeatherServiceImplementation implements WeatherService{
-
-    private final RestTemplate restTemplate;
-    private final String apiUrl;
-    private final String apiKey;
+    private final WeatherProvider weatherProvider;
     private final CityRepository cityRepository;
     private final CurrentWeatherRepository currentWeatherRepository;
     private final ForecastRepository forecastRepository;
     private static final Logger log = LoggerFactory.getLogger(WeatherServiceImplementation.class);
 
-    public WeatherServiceImplementation (RestTemplate restTemplate,
+    public WeatherServiceImplementation (WeatherProvider weatherProvider,
                                         CityRepository cityRepository,
                                         CurrentWeatherRepository currentWeatherRepository,
-                                        ForecastRepository forecastRepository,
-                                        @Value("${openweathermap.api.base-url}") String apiUrl,
-                                        @Value("${openweathermap.api.key}") String apiKey) {
-        this.restTemplate = restTemplate;
+                                        ForecastRepository forecastRepository) {
+        this.weatherProvider = weatherProvider;
         this.cityRepository = cityRepository;
         this.currentWeatherRepository = currentWeatherRepository;
         this.forecastRepository = forecastRepository;
-        this.apiUrl = apiUrl;
-        this.apiKey = apiKey;
     }
 
     @Override
     @Cacheable("current-weather")
     public CurrentWeatherResponse getWeather(String city){
-        String url = UriComponentsBuilder.fromUriString(apiUrl)
-            .path("/weather")
-            .queryParam("q", city)
-            .queryParam("appid", apiKey)
-            .queryParam("units", "metric")
-            .toUriString();
-
         
         try{
-            OpenWeatherMapResponse response = restTemplate.getForObject(url, OpenWeatherMapResponse.class);
+            OpenWeatherMapResponse response = weatherProvider.fetchCurrentWeather(city);
 
             if (response != null && response.getMain() != null && response.getSys() != null) {
 
@@ -95,15 +82,8 @@ public class WeatherServiceImplementation implements WeatherService{
     @Override
     @Cacheable("weather-forecast")
     public ForecastResponse getForecast(String city) {
-        String url = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                .path("/forecast")
-                .queryParam("q", city)
-                .queryParam("appid", apiKey)
-                .queryParam("units", "metric")
-                .toUriString();
-
         try {
-            OpenWeatherMapForecastResponse response = restTemplate.getForObject(url, OpenWeatherMapForecastResponse.class);
+            OpenWeatherMapForecastResponse response = weatherProvider.fetchForecast(city);
 
             if (response == null || response.getList() == null || response.getList().isEmpty()) {
                 log.warn("Forecast data not available or empty for city: {}", city);
