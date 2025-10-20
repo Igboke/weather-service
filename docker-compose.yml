@@ -5,9 +5,9 @@ services:
     image: postgres:15          
     container_name: weather_db  
     environment:
-      - POSTGRES_DB=weatherdb
-      - POSTGRES_USER=marketting
-      - POSTGRES_PASSWORD=your_password 
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"             
     volumes:
@@ -24,10 +24,9 @@ services:
       - "8080:8080"             
     environment:
 
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/weatherdb
-
-      - SPRING_DATASOURCE_USERNAME=marketting
-      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
 
 volumes:
