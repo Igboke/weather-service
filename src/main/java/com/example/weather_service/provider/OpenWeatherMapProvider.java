@@ -2,8 +2,11 @@ package com.example.weather_service.provider;
 
 import com.example.weather_service.service.OpenWeatherMapForecastResponse;
 import com.example.weather_service.service.OpenWeatherMapResponse;
+import com.example.weather_service.service.exception.WeatherProviderException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,7 +33,12 @@ public class OpenWeatherMapProvider implements WeatherProvider {
                 .queryParam("appid", apiKey)
                 .queryParam("units", "metric")
                 .toUriString();
-        return restTemplate.getForObject(url, OpenWeatherMapResponse.class);
+        try{
+            return restTemplate.getForObject(url, OpenWeatherMapResponse.class);
+        }catch(RestClientException e){
+            throw new WeatherProviderException("API call failed for current weather", e);
+        }
+
     }
 
     @Override
@@ -41,7 +49,11 @@ public class OpenWeatherMapProvider implements WeatherProvider {
                 .queryParam("appid", apiKey)
                 .queryParam("units", "metric")
                 .toUriString();
+        try{
         return restTemplate.getForObject(url, OpenWeatherMapForecastResponse.class);
+        }catch(RestClientException e){
+            throw new WeatherProviderException("API call failed for forecast", e);
+        }
     }
 
     
