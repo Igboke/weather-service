@@ -1,10 +1,8 @@
 package com.example.weather_service.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,10 +42,4 @@ public class City {
     @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Forecast> forecasts = new ArrayList<>();
 
-    public Optional<Forecast> findForecastForDate(LocalDate date) {
-    return this.forecasts.stream()
-            .filter(f -> f.getForecastDate().equals(date))
-            .findFirst();
-}
-    
 }
