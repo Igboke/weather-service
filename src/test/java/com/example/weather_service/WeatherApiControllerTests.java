@@ -120,5 +120,17 @@ public class WeatherApiControllerTests {
             .andExpect(jsonPath("$.forecasts[0].date").value(date))
             .andExpect(jsonPath("$.forecasts[0].maxTemperature").value(15.0));
     }
+
+    @Test
+    void whenServiceThrowsUnexpectedError_thenReturns500InternalServerError() throws Exception {
+    String city = "Lima";
+    when(weatherService.getWeather(city)).thenThrow(new RuntimeException("Database is down!"));
+
+    mockMvc.perform(get("/api/weather/current").param("city", city))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.statusCode").value(500))
+            .andExpect(jsonPath("$.message").value("An unexpected error occurred"));
+}
     
 }

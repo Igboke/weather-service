@@ -12,6 +12,7 @@ import com.example.weather_service.service.OpenWeatherMapForecastResponse;
 import com.example.weather_service.service.OpenWeatherMapResponse;
 import com.example.weather_service.service.WeatherServiceImplementation;
 import com.example.weather_service.service.exception.CityNotFoundException;
+import com.example.weather_service.service.exception.WeatherProviderException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -259,6 +260,17 @@ public class WeatherServiceImplementationTest {
     assertThat(savedCity.getForecasts()).isNotNull();
     assertThat(savedCity.getForecasts()).hasSize(2);
     assertThat(savedCity.getForecasts().get(0).getTemperature()).isEqualTo(15.0);
-}
+    }
 
+    @Test
+    void whenProviderFails_thenGetWeatherThrowsException() {
+    String city = "Abuja";
+    when(weatherProvider.fetchCurrentWeather(city))
+            .thenThrow(new WeatherProviderException("API is down", null));
+
+    assertThrows(WeatherProviderException.class, () -> {
+        weatherService.getWeather(city);
+    });
+
+}
 }

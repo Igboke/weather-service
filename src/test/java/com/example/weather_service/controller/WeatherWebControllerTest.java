@@ -6,6 +6,8 @@ import com.example.weather_service.dto.DailyForecast;
 import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
 import com.example.weather_service.service.WeatherService;
+import com.example.weather_service.service.exception.CityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -93,4 +95,14 @@ public class WeatherWebControllerTest {
                 .andExpect(model().attributeExists("topCities"))
                 .andExpect(model().attribute("topCities", fakeTopCities));
     }
+
+    @Test
+    void whenServiceThrowsCityNotFound_thenForwardsToErrorPage() throws Exception {
+    String city = "InvalidCity";
+    when(weatherService.getWeather(city)).thenThrow(new CityNotFoundException("City not found"));
+
+    mockMvc.perform(get("/weather").param("city", city))
+            .andExpect(status().isOk())
+            .andExpect(view().name("error"));
+}
 }

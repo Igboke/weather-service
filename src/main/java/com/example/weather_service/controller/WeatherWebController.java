@@ -5,6 +5,7 @@ import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
 import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.service.WeatherService;
+import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class WeatherWebController implements ErrorController {
     public String getWeatherPage(@RequestParam("city") String city, Model model) {
         log.info("Web request received for city: {}", city);
 
-        CurrentWeatherResponse currentWeather = weatherService.getWeather(city);
+        try{CurrentWeatherResponse currentWeather = weatherService.getWeather(city);
         ForecastResponse forecast = weatherService.getForecast(city);
 
         if (forecast != null && forecast.forecasts() != null) {
@@ -55,6 +56,10 @@ public class WeatherWebController implements ErrorController {
         model.addAttribute("forecast", forecast);
 
         return "weather-details";
+        }catch(CityNotFoundException e){
+            log.warn("City not found for web request: {}. Redirecting to error page.", city, e);
+            return "error";
+        }
 
     }
     
