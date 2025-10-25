@@ -1,19 +1,19 @@
 package com.example.weather_service.dto;
 
-import lombok.Data;
+public record DailyForecast(
+    String date,
+    double maxTemperature,
+    double minTemperature,
+    String description,
+    String conditions,
+    double humidity,
+    int pressure,
+    double windSpeed,
+    float windDirection,
+    float rainProbability,
+    double rainMillimeter,
+    String iconClass
 
-@Data
-public class DailyForecast {
-    private final String date;
-    private final double maxTemperature;
-    private final double minTemperature;
-    private final String description;
-    private final String conditions;
-    private final double humidity;
-    private final int pressure;
-    private final double windSpeed;
-    private final float windDirection;
-    private final float rainProbability;
-    private final double rainMillimeter;
-    private final String iconClass;
+) {
+
 }

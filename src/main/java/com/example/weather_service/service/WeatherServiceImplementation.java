@@ -13,12 +13,9 @@ import com.example.weather_service.repository.ForecastRepository;
 import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -253,7 +250,7 @@ public class WeatherServiceImplementation implements WeatherService{
         final City finalCityEntity = cityEntity;
 
         for (DailyForecast dailyDto : dailyForecasts) {
-            LocalDate forecastDate = LocalDate.parse(dailyDto.getDate());
+            LocalDate forecastDate = LocalDate.parse(dailyDto.date());
 
             Forecast forecastEntity = cityEntity.findForecastForDate(forecastDate)
                 .orElseGet(() -> {
@@ -264,15 +261,15 @@ public class WeatherServiceImplementation implements WeatherService{
                 });
 
             forecastEntity.setForecastDate(forecastDate);
-            forecastEntity.setTemperature(dailyDto.getMaxTemperature());
-            forecastEntity.setWeatherDesc(dailyDto.getDescription());
-            forecastEntity.setWeatherMain(dailyDto.getConditions());
-            forecastEntity.setWindSpeed(dailyDto.getWindSpeed());
-            forecastEntity.setWindDirection(dailyDto.getWindDirection());
-            forecastEntity.setHumidity(dailyDto.getHumidity());
-            forecastEntity.setPressure(dailyDto.getPressure());
-            forecastEntity.setProbability(dailyDto.getRainProbability());
-            forecastEntity.setRainVolume(dailyDto.getRainMillimeter());    
+            forecastEntity.setTemperature(dailyDto.maxTemperature());
+            forecastEntity.setWeatherDesc(dailyDto.description());
+            forecastEntity.setWeatherMain(dailyDto.conditions());
+            forecastEntity.setWindSpeed(dailyDto.windSpeed());
+            forecastEntity.setWindDirection(dailyDto.windDirection());
+            forecastEntity.setHumidity(dailyDto.humidity());
+            forecastEntity.setPressure(dailyDto.pressure());
+            forecastEntity.setProbability(dailyDto.rainProbability());
+            forecastEntity.setRainVolume(dailyDto.rainMillimeter());    
     }
 
         cityRepository.save(cityEntity);

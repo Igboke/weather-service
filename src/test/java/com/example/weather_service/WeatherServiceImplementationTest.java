@@ -79,8 +79,8 @@ public class WeatherServiceImplementationTest {
         
         CurrentWeatherResponse actualResponse = weatherService.getWeather(city);
         
-        assertEquals(city, actualResponse.getCity());
-        assertEquals(expectedTemp, actualResponse.getTemperature());
+        assertEquals(city, actualResponse.city());
+        assertEquals(expectedTemp, actualResponse.temperature());
 }
     @Test
     void whenCityNotFoundOnApi_thenThrowsCityNotFoundException(){
@@ -240,16 +240,16 @@ public class WeatherServiceImplementationTest {
     ForecastResponse actualResponse = weatherService.getForecast(city);
 
     assertThat(actualResponse).isNotNull();
-    assertThat(actualResponse.getCity()).isEqualTo(city);
-    assertThat(actualResponse.getCountry()).isEqualTo(country);
-    assertThat(actualResponse.getForecasts()).hasSize(2);
-    assertThat(actualResponse.getForecasts().get(0).getDate()).isEqualTo("2025-10-06");
-    assertThat(actualResponse.getForecasts().get(0).getMaxTemperature()).isEqualTo(15.0);
-    assertThat(actualResponse.getForecasts().get(0).getMinTemperature()).isEqualTo(8.0);
-    assertThat(actualResponse.getForecasts().get(0).getDescription()).isEqualTo("Cloudy");
-    assertThat(actualResponse.getForecasts().get(1).getDate()).isEqualTo("2025-10-07");
-    assertThat(actualResponse.getForecasts().get(1).getMaxTemperature()).isEqualTo(16.0);
-    assertThat(actualResponse.getForecasts()).hasSize(2);
+    assertThat(actualResponse.city()).isEqualTo(city);
+    assertThat(actualResponse.country()).isEqualTo(country);
+    assertThat(actualResponse.forecasts()).hasSize(2);
+    assertThat(actualResponse.forecasts().get(0).date()).isEqualTo("2025-10-06");
+    assertThat(actualResponse.forecasts().get(0).maxTemperature()).isEqualTo(15.0);
+    assertThat(actualResponse.forecasts().get(0).minTemperature()).isEqualTo(8.0);
+    assertThat(actualResponse.forecasts().get(0).description()).isEqualTo("Cloudy");
+    assertThat(actualResponse.forecasts().get(1).date()).isEqualTo("2025-10-07");
+    assertThat(actualResponse.forecasts().get(1).maxTemperature()).isEqualTo(16.0);
+    assertThat(actualResponse.forecasts()).hasSize(2);
 
     ArgumentCaptor<City> cityCaptor = ArgumentCaptor.forClass(City.class);
 

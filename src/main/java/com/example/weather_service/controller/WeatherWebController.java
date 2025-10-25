@@ -47,8 +47,8 @@ public class WeatherWebController implements ErrorController {
         CurrentWeatherResponse currentWeather = weatherService.getWeather(city);
         ForecastResponse forecast = weatherService.getForecast(city);
 
-        if (forecast != null && forecast.getForecasts() != null) {
-            log.debug("Adding forecast to model with {} daily entries.", forecast.getForecasts().size());
+        if (forecast != null && forecast.forecasts() != null) {
+            log.debug("Adding forecast to model with {} daily entries.", forecast.forecasts().size());
         } else {
             log.warn("Forecast object or its list is null for city: {}", city);
         }
