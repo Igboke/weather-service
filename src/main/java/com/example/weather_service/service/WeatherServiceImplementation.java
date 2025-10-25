@@ -103,6 +103,11 @@ public class WeatherServiceImplementation implements WeatherService{
         }
     }
 
+    @Override
+    public List<City> getTopSearchedCities() {
+        return cityRepository.findTop10ByOrderBySearchCountDesc();
+    }
+
     private String formatTimestamp(OpenWeatherMapResponse response, long dateTime){
         try{
             Instant instant = Instant.ofEpochSecond(dateTime);

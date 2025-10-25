@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.DailyForecast;
 import com.example.weather_service.dto.ForecastResponse;
-import com.example.weather_service.repository.CityRepository;
+import com.example.weather_service.model.City;
 import com.example.weather_service.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,8 +26,6 @@ public class WeatherWebControllerTest {
     @MockBean
     private WeatherService weatherService;
 
-    @MockBean
-    private CityRepository cityRepository;
 
     @Test
     void whenGetWeatherPageWithCity_thenReturnsViewWithData() throws Exception {
@@ -79,5 +77,20 @@ public class WeatherWebControllerTest {
     mockMvc.perform(get("/error"))
             .andExpect(status().isOk())
             .andExpect(view().name("error"));
-}
+    }
+
+    @Test
+    void whenGetHomePage_thenReturnsViewWithTopCities() throws Exception {
+        City london = new City();
+        london.setName("London");
+        List<City> fakeTopCities = List.of(london);
+
+        when(weatherService.getTopSearchedCities()).thenReturn(fakeTopCities);
+
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("home"))
+                .andExpect(model().attributeExists("topCities"))
+                .andExpect(model().attribute("topCities", fakeTopCities));
+    }
 }

@@ -22,19 +22,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class WeatherWebController implements ErrorController {
 
     private final WeatherService weatherService;
-    private final CityRepository cityRepository;
 
     private static final Logger log = LoggerFactory.getLogger(WeatherWebController.class);
 
-    public WeatherWebController(WeatherService weatherService, CityRepository cityRepository) {
+    public WeatherWebController(WeatherService weatherService) {
         this.weatherService = weatherService;
-        this.cityRepository = cityRepository;
     }
 
     @GetMapping("/")
     public String getHomePage(Model model) {
 
-        List<City> topCities = cityRepository.findTop10ByOrderBySearchCountDesc();
+        List<City> topCities = weatherService.getTopSearchedCities();
     
         model.addAttribute("topCities", topCities);
         return "home";
