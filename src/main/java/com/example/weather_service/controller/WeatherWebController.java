@@ -3,16 +3,17 @@ package com.example.weather_service.controller;
 import com.example.weather_service.dto.CurrentWeatherResponse;
 import com.example.weather_service.dto.ForecastResponse;
 import com.example.weather_service.model.City;
-import com.example.weather_service.repository.CityRepository;
 import com.example.weather_service.service.WeatherService;
 import com.example.weather_service.service.exception.CityNotFoundException;
 
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +33,15 @@ public class WeatherWebController implements ErrorController {
 
     @GetMapping("/")
     public String getHomePage(Model model) {
-
+    try {
         List<City> topCities = weatherService.getTopSearchedCities();
-    
         model.addAttribute("topCities", topCities);
+        log.debug("Found {} top cities to display on home page.", topCities.size());
+
+    } catch (DataAccessException e) {
+        log.error("Could not retrieve top cities from database for home page.", e);
+        model.addAttribute("topCities", Collections.emptyList());
+    }
         return "home";
     }
 

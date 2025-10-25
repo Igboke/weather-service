@@ -257,7 +257,7 @@ public class WeatherServiceImplementation implements WeatherService{
         for (DailyForecast dailyDto : dailyForecasts) {
             LocalDate forecastDate = LocalDate.parse(dailyDto.date());
 
-            Forecast forecastEntity = cityEntity.findForecastForDate(forecastDate)
+        Forecast forecastEntity = forecastRepository.findByCityAndForecastDate(cityEntity, forecastDate)
                 .orElseGet(() -> {
                     Forecast newForecast = new Forecast();
                     newForecast.setCity(finalCityEntity);
