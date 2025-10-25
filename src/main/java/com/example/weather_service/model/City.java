@@ -7,13 +7,17 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "cities")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString(exclude = {"currentWeather", "forecasts"}) 
 public class City {
 
     @Id

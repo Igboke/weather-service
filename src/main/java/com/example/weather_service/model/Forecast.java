@@ -2,13 +2,19 @@ package com.example.weather_service.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "forecasts")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString(exclude = "city")
 public class Forecast {
 
     @Id
