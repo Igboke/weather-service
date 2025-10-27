@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Weather in ' + ${currentWeather.city}">WeatherWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #121a25; }
+    </style>
+</head>
+<body class="text-light">
+
+<div class="container my-5">
+
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-brightness-high-fill"></i> WeatherWise</h3>
+        <form action="/weather" method="get" class="w-50">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-light"><i class="bi bi-search"></i></span>
+                <input type="text" name="city" class="form-control bg-dark border-secondary text-light" th:value="${currentWeather.city}">
+            </div>
+        </form>
+    </header>
+
+    <!-- Current Weather Section -->
+    <div class="row align-items-center p-4 rounded-3" style="background-color: #1a2433;">
+        <div class="col-md-6">
+            <h1 class="display-1 fw-bold" th:text="${#numbers.formatDecimal(currentWeather.temperature, 1, 0)} + '°C'">22°C</h1>
+            <p class="h3" th:text="${currentWeather.conditions}">Sunny</p>
+            <p class="h5" th:text="${currentWeather.city} + ', ' + ${currentWeather.country}">San Andreas, GTA</p>
+        </div>
+        <div class="col-md-6 text-center">
+            <i th:class="${'bi ' + currentWeather.iconClass}" style="font-size: 8rem; color: #0dcaf0;"></i>
+        </div>
+    </div>
+
+    <!-- Forecast Section -->
+    <div class="mt-5">
+        <h4 class="fw-bold mb-3">6-Day Forecast</h4>
+        <ul class="list-group list-group-flush">
+
+            <li th:each="day : ${forecast.forecasts}" class="list-group-item text-light bg-transparent d-flex justify-content-between align-items-center border-secondary py-3">
+                
+                <span class="h5" th:text="${day.date}">Tomorrow</span>
+                <span>
+                    <i th:class="${'bi h4 me-2 ' + day.iconClass}"></i>
+                    <span class="h5" th:text="${day.description}">Partly Cloudy</span>
+                </span>
+                <span class="h5" th:text="${#numbers.formatDecimal(day.minTemperature, 1, 0)} + '°C'">24°C</span>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
